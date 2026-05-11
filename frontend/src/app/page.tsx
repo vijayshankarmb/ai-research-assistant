@@ -10,7 +10,7 @@ const Home = () => {
   const [message, setMessage] = useState<string>('')
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -22,28 +22,70 @@ const Home = () => {
   }, [messages, isLoading])
 
   const handleAsk = async () => {
-    if (!message.trim()) return
+    if (!message.trim()) return;
+
+    const userMessage = message;
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: userMessage },
+      { role: "assistant", content: "" }
+    ]);
+
+    setMessage("");
+    setIsLoading(true);
+
     try {
-      setMessages((prev) => [...prev, {role: "user", content: message}])
-      setIsLoading(true)
-      setMessage('')
-      const res = await axios.post('http://localhost:8000/chat', {
-        query: message
-      })
-      setMessages((prev)=>[...prev, {role: 'assistant', content: res.data.response}])
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+        }),
+      });
+
+      const reader = response.body?.getReader();
+
+      if (!reader) return;
+
+      const decoder = new TextDecoder();
+
+      let done = false;
+      let fullText = "";
+
+      while (!done) {
+        const result = await reader.read();
+
+        done = result.done;
+
+        const chunk = decoder.decode(result.value || new Uint8Array());
+
+        fullText += chunk;
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: fullText,
+          };
+          return updated;
+        });
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-gray-900 font-sans overflow-hidden">
       <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-center items-center z-10 shrink-0">
         <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
       </header>
-      
+
       <main className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col items-center">
         <div className="w-full max-w-3xl flex flex-col gap-2 pb-4">
           {messages.length === 0 ? (
@@ -61,26 +103,18 @@ const Home = () => {
               <ChatMessage key={index} role={msg.role} content={msg.content} />
             ))
           )}
-          
-          {isLoading && (
-            <div className="flex w-full justify-start mb-4">
-              <div className="bg-gray-200 text-gray-800 rounded-2xl rounded-bl-none px-5 py-4 flex items-center gap-1 shadow-sm max-w-[80%]">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-              </div>
-            </div>
-          )}
+
+         
           <div ref={messagesEndRef} />
         </div>
       </main>
-      
+
       <footer className="bg-white border-t border-gray-200 p-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <ChatInput 
-          message={message} 
-          setMessage={setMessage} 
-          handleAsk={handleAsk} 
-          isLoading={isLoading} 
+        <ChatInput
+          message={message}
+          setMessage={setMessage}
+          handleAsk={handleAsk}
+          isLoading={isLoading}
         />
         <div className="text-center mt-2">
           <p className="text-xs text-gray-400">AI can make mistakes. Consider verifying important information.</p>

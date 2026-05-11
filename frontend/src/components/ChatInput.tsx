@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Square } from 'lucide-react';
 
 interface ChatInputProps {
   message: string;
@@ -33,7 +33,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
         }`}
         disabled={isLoading || !message.trim()}
       >
-        <ArrowUp size={24}/>
+        {isLoading ? <Square size={18} fill='black'/> : <ArrowUp size={24}/>}
       </button>
     </div>
   );
