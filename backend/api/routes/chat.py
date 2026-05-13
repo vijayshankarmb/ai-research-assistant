@@ -40,4 +40,3 @@ async def upload_pdf(file: UploadFile = File(...)):
     ingest_pdf(file_path)
     return {"message": "PDF uploaded and vectorized successfully"}
 
-
