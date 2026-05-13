@@ -5,12 +5,14 @@ import axios from 'axios'
 import ChatMessage from '@/components/ChatMessage'
 import ChatInput from '@/components/ChatInput'
 import type { ChatMessageType } from '@/types/chat'
+import { v4 as uuidv4 } from 'uuid';
 
 const Home = () => {
   const [message, setMessage] = useState<string>('')
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [mode, setMode] = useState<"chat" | "rag">("chat")
+  const [sessionId] = useState(uuidv4());
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -45,6 +47,7 @@ const Home = () => {
         body: JSON.stringify({
           message: userMessage,
           mode,
+          session_id: sessionId
         }),
       });
 

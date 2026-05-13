@@ -4,8 +4,11 @@ from rag.retriver import get_retriver
 
 retriever = get_retriver()
 
-async def stream_rag_response(query: str):
-
+async def stream_rag_response(query: str, history: list):
+    conversation = ""
+    for msg in history:
+        conversation += f"{msg['role']}: {msg['content']}\n"
+    
     results = retriever.invoke(query)
 
     context = "\n\n".join(
@@ -14,6 +17,9 @@ async def stream_rag_response(query: str):
 
     prompt = f"""
     Answer the question only from the provided context.
+
+    CONVERSATION HISTORY:
+    {conversation}
 
     Context:
     {context}
