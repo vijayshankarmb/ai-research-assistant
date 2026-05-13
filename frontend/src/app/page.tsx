@@ -75,6 +75,14 @@ const Home = () => {
       }
     } catch (error) {
       console.log(error);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: "assistant",
+          content: "Sorry, seems like there's an Error",
+        };
+        return updated;
+      });
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +111,6 @@ const Home = () => {
               <ChatMessage key={index} role={msg.role} content={msg.content} />
             ))
           )}
-
          
           <div ref={messagesEndRef} />
         </div>
