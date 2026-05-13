@@ -10,6 +10,7 @@ const Home = () => {
   const [message, setMessage] = useState<string>('')
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [mode, setMode] = useState<"chat" | "rag">("chat")
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -43,6 +44,7 @@ const Home = () => {
         },
         body: JSON.stringify({
           message: userMessage,
+          mode,
         }),
       });
 
@@ -122,6 +124,8 @@ const Home = () => {
           setMessage={setMessage}
           handleAsk={handleAsk}
           isLoading={isLoading}
+          mode={mode}
+          setMode={setMode}
         />
         <div className="text-center mt-2">
           <p className="text-xs text-gray-400">AI can make mistakes. Consider verifying important information.</p>

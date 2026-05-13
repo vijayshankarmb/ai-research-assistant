@@ -7,9 +7,11 @@ interface ChatInputProps {
   setMessage: (message: string) => void;
   handleAsk: () => void;
   isLoading: boolean;
+  mode: "chat" | "rag";
+  setMode: (mode: "chat" | "rag") => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, isLoading }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, isLoading, mode, setMode }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -42,6 +44,29 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
 
   return (
     <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto">
+      <div className="flex gap-2 mb-2 ml-2">
+        <button
+          onClick={() => setMode("chat")}
+          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+            mode === "chat"
+              ? "bg-black text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          Chat
+        </button>
+        <button
+          onClick={() => setMode("rag")}
+          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+            mode === "rag"
+              ? "bg-black text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          PDF Chat
+        </button>
+      </div>
+
       {uploadedFileName && (
         <div className="flex items-center gap-2 bg-neutral-100 text-neutral-800 px-3 py-2 rounded-xl w-max shadow-sm border border-neutral-200 ml-4">
           <FileText size={16} className="text-blue-500" />
