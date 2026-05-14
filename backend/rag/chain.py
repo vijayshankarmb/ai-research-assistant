@@ -11,6 +11,14 @@ async def stream_rag_response(query: str, history: list):
     
     results = retriever.invoke(query)
 
+    sources = []
+
+    for doc in results:
+        page = doc.metadata.get("page")
+
+        if page is not None:
+            sources.append(page+1)
+
     context = "\n\n".join(
         [doc.page_content for doc in results]
     )
@@ -35,3 +43,4 @@ async def stream_rag_response(query: str, history: list):
     async for chunk in llm.astream(prompt):
         yield chunk.content
 
+    yield f"\n__SOURCES__:{list(set(sources))}"

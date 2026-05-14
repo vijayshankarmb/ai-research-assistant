@@ -69,15 +69,43 @@ const Home = () => {
 
         fullText += chunk;
 
+        const sourceIndex = fullText.indexOf("__SOURCES__:");
+        const content = sourceIndex !== -1 ? fullText.substring(0, sourceIndex) : fullText;
+
         setMessages((prev) => {
           const updated = [...prev];
           updated[updated.length - 1] = {
             role: "assistant",
-            content: fullText,
+            content: content,
+            sources: [],
           };
           return updated;
         });
       }
+
+      const finalSourceIndex = fullText.indexOf("__SOURCES__:");
+      let cleanText = fullText;
+      let parsedSources = [];
+
+      if (finalSourceIndex !== -1) {
+        cleanText = fullText.substring(0, finalSourceIndex);
+        const sourcesJsonStr = fullText.substring(finalSourceIndex + "__SOURCES__:".length);
+        try {
+          parsedSources = JSON.parse(sourcesJsonStr);
+        } catch (err) {
+          console.error("Error parsing sources", err);
+        }
+      }
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: "assistant",
+          content: cleanText,
+          sources: parsedSources,
+        };
+        return updated;
+      });
     } catch (error) {
       console.log(error);
       setMessages((prev) => {
@@ -113,7 +141,7 @@ const Home = () => {
             </div>
           ) : (
             messages.map((msg, index) => (
-              <ChatMessage key={index} role={msg.role} content={msg.content} />
+              <ChatMessage key={index} role={msg.role} content={msg.content} sources={msg.sources}/>
             ))
           )}
          
