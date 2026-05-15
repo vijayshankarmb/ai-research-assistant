@@ -9,9 +9,10 @@ interface ChatInputProps {
   isLoading: boolean;
   mode: "chat" | "rag";
   setMode: (mode: "chat" | "rag") => void;
+  sessionId: string;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, isLoading, mode, setMode }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, isLoading, mode, setMode, sessionId }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -24,6 +25,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
       setIsUploading(true);
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("session_id", sessionId);
 
       await axios.post("http://localhost:8000/upload-pdf", formData);
       setUploadedFileName(file.name);

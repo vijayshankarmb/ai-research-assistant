@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 import os
 from fastapi.responses import StreamingResponse
@@ -25,7 +25,7 @@ async def chat(req: ChatRequest):
     async def generate():
         full_response = ""
         if req.mode == "rag":
-            async for chunk in stream_rag_response(req.message, sessions[req.session_id]):
+            async for chunk in stream_rag_response(req.message, sessions[req.session_id], req.session_id):
                 full_response += chunk
                 yield chunk
         else:
@@ -41,7 +41,7 @@ async def chat(req: ChatRequest):
     )
 
 @router.post("/upload-pdf")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(file: UploadFile = File(...), session_id: str = Form(...)):
     if not file:
         raise HTTPException(status_code=400, detail="File is required")
     os.makedirs("./pdfs", exist_ok=True)
@@ -49,6 +49,6 @@ async def upload_pdf(file: UploadFile = File(...)):
     content = await file.read()
     with open(file_path, "wb") as f:
         f.write(content)
-    ingest_pdf(file_path)
+    ingest_pdf(file_path, session_id)
     return {"message": "PDF uploaded and vectorized successfully"}
 

@@ -157,6 +157,7 @@ const Home = () => {
           isLoading={isLoading}
           mode={mode}
           setMode={setMode}
+          sessionId={sessionId}
         />
         <div className="text-center mt-2">
           <p className="text-xs text-gray-400">AI can make mistakes. Consider verifying important information.</p>

@@ -2,12 +2,12 @@
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_chroma import Chroma
 
-def get_retriver(): 
+def get_retriver(collection_name: str): 
     embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
     vector_store = Chroma(
         persist_directory="db/chroma_db",
-        collection_name="lc_pdf_rag",
+        collection_name=collection_name,
         embedding_function=embeddings
     )
 

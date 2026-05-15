@@ -3,7 +3,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
 from langchain_chroma import Chroma
 
-def ingest_pdf(path):
+def ingest_pdf(path: str, collection_name: str):
     loader = PyPDFLoader(file_path=path)
     docs = loader.load()
 
@@ -16,10 +16,10 @@ def ingest_pdf(path):
         documents=chunks,
         embedding=embeddings,
         persist_directory="db/chroma_db",
-        collection_name="lc_pdf_rag",
+        collection_name=collection_name,
     )
 
-    print("vector store created")
+    print(f"vector store created for collection {collection_name}")
 
 
 

@@ -2,13 +2,12 @@
 from langchain_ollama import ChatOllama
 from rag.retriver import get_retriver
 
-retriever = get_retriver()
-
-async def stream_rag_response(query: str, history: list):
+async def stream_rag_response(query: str, history: list, session_id: str):
     conversation = ""
     for msg in history:
         conversation += f"{msg['role']}: {msg['content']}\n"
     
+    retriever = get_retriver(session_id)
     results = retriever.invoke(query)
 
     sources = []
