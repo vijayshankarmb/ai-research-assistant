@@ -5,3 +5,9 @@ langchain-google-genai
 langchain-community
 langchain_chroma
 pypdf
+python-dotenv
+sqlalchemy
+psycopg2-binary
+alembic
+
+
