@@ -15,20 +15,30 @@ interface ChatInputProps {
 const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, isLoading, mode, setMode, sessionId }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files) return;
 
     try {
       setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("session_id", sessionId);
+      const uploadedNames: string[] = [];
+      for (const file of Array.from(files)) {
 
-      await axios.post("http://localhost:8000/upload-pdf", formData);
-      setUploadedFileName(file.name);
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        formData.append("session_id", sessionId);
+
+        await axios.post(
+          "http://localhost:8000/upload-pdf",
+          formData
+        );
+        uploadedNames.push(file.name);
+      }
+      setUploadedFiles(uploadedNames);
     } catch (error) {
       console.log(error);
       alert("Failed to upload PDF");
@@ -41,7 +51,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
   };
 
   const removeFile = () => {
-    setUploadedFileName(null);
+    setUploadedFiles([]);
   };
 
   return (
@@ -49,42 +59,43 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
       <div className="flex gap-2 mb-2 ml-2">
         <button
           onClick={() => setMode("chat")}
-          className={`px-3 py-1 rounded-full text-sm transition-colors ${
-            mode === "chat"
+          className={`px-3 py-1 rounded-full text-sm transition-colors ${mode === "chat"
               ? "bg-black text-white"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+            }`}
         >
           Chat
         </button>
         <button
           onClick={() => setMode("rag")}
-          className={`px-3 py-1 rounded-full text-sm transition-colors ${
-            mode === "rag"
+          className={`px-3 py-1 rounded-full text-sm transition-colors ${mode === "rag"
               ? "bg-black text-white"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+            }`}
         >
           PDF Chat
         </button>
       </div>
 
-      {uploadedFileName && (
-        <div className="flex items-center gap-2 bg-neutral-100 text-neutral-800 px-3 py-2 rounded-xl w-max shadow-sm border border-neutral-200 ml-4">
-          <FileText size={16} className="text-blue-500" />
-          <span className="text-sm font-medium truncate max-w-[200px]">{uploadedFileName}</span>
-          <button 
-            onClick={removeFile}
-            className="p-1 hover:bg-neutral-200 rounded-full transition-colors ml-1"
-            title="Remove file"
-          >
-            <X size={14} className="text-neutral-500" />
-          </button>
+      {uploadedFiles.length > 0 && (
+        <div className="flex flex-wrap gap-2 ml-4">
+          {uploadedFiles.map((fileName, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-2 bg-neutral-100 text-neutral-800 px-3 py-2 rounded-xl shadow-sm border border-neutral-200"
+            >
+              <FileText size={16} className="text-blue-500" />
+              <span className="text-sm font-medium truncate max-w-[200px]">
+                {fileName}
+              </span>
+            </div>
+          ))}
         </div>
       )}
       <div className="flex gap-3 w-full items-center relative">
         <input
           type="file"
+          multiple
           accept=".pdf"
           ref={fileInputRef}
           className="hidden"
@@ -112,17 +123,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
           }}
           disabled={isLoading || isUploading}
         />
-        
+
         <button
           onClick={handleAsk}
-          className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${
-            isLoading || !message.trim() 
-              ? 'text-gray-400 bg-transparent cursor-not-allowed' 
+          className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${isLoading || !message.trim()
+              ? 'text-gray-400 bg-transparent cursor-not-allowed'
               : 'text-white bg-neutral-900 hover:bg-neutral-600 shadow-sm'
-          }`}
+            }`}
           disabled={isLoading || !message.trim()}
         >
-          {isLoading ? <Square size={18} fill='black'/> : <ArrowUp size={24}/>}
+          {isLoading ? <Square size={18} fill='black' /> : <ArrowUp size={24} />}
         </button>
       </div>
     </div>
