@@ -6,6 +6,8 @@ import ChatMessage from '@/components/ChatMessage'
 import ChatInput from '@/components/ChatInput'
 import type { ChatMessageType } from '@/types/chat'
 import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const Home = () => {
   const [message, setMessage] = useState<string>('')
@@ -13,8 +15,32 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [mode, setMode] = useState<"chat" | "rag">("chat")
   const [sessionId] = useState(uuidv4());
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const router = useRouter();
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get('http://localhost:8000/me', { withCredentials: true });
+        setIsLoggedIn(true);
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('http://localhost:8000/logout', {}, { withCredentials: true });
+      setIsLoggedIn(false);
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -26,6 +52,11 @@ const Home = () => {
 
   const handleAsk = async () => {
     if (!message.trim()) return;
+
+    if (isLoggedIn === false) {
+      router.push('/login');
+      return;
+    }
 
     const userMessage = message;
 
@@ -44,6 +75,7 @@ const Home = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           message: userMessage,
           mode,
@@ -123,8 +155,35 @@ const Home = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-gray-900 font-sans overflow-hidden">
-      <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-center items-center z-10 shrink-0">
+      <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-between items-center z-10 shrink-0">
+        <div className="w-16"></div>
         <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
+        <div className="flex gap-2">
+          {isLoggedIn === true && (
+            <button 
+              onClick={handleLogout} 
+              className="text-sm font-medium text-gray-600 hover:text-black border border-gray-300 rounded-md px-3 py-1.5 transition-colors hover:bg-gray-50"
+            >
+              Logout
+            </button>
+          )}
+          {isLoggedIn === false && (
+            <>
+              <Link 
+                href="/login" 
+                className="text-sm font-medium text-gray-600 hover:text-black border border-gray-300 rounded-md px-3 py-1.5 transition-colors hover:bg-gray-50"
+              >
+                Login
+              </Link>
+              <Link 
+                href="/signup" 
+                className="text-sm font-medium text-white bg-black hover:bg-gray-800 border border-transparent rounded-md px-3 py-1.5 transition-colors"
+              >
+                Sign up
+              </Link>
+            </>
+          )}
+        </div>
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col items-center">
