@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.18.4",
+    "bcrypt>=5.0.0",
     "fastapi[standard]>=0.136.1",
     "langchain>=1.2.18",
     "langchain-chroma>=1.1.0",
@@ -15,5 +16,6 @@ dependencies = [
     "psycopg2-binary>=2.9.12",
     "pypdf>=6.11.0",
     "python-dotenv>=1.2.2",
+    "python-jose>=3.5.0",
     "sqlalchemy>=2.0.49",
 ]
