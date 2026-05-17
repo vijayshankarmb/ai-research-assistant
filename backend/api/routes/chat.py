@@ -6,6 +6,9 @@ from services.llm_services import stream_llm
 from rag.ingest import ingest_pdf
 from rag.chain import stream_rag_response
 from core.session_store import sessions
+from core.dependencies import get_current_user
+from models.user import User
+from fastapi import Depends
 
 router = APIRouter()
 
@@ -15,7 +18,7 @@ class ChatRequest(BaseModel):
     session_id: str
 
 @router.post("/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, current_user: User = Depends(get_current_user)):
 
     if req.session_id not in sessions:
         sessions[req.session_id] = []

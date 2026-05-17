@@ -1,17 +1,18 @@
+from pydantic import EmailStr
 from pydantic import BaseModel
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, Depends, HTTPException
 from core.database import session_local
 from models.user import User
 from core.security import hash_password, create_access_token, verify_password
-from fastapi import Response
+from core.dependencies import get_current_user
 
 class SignupRequest(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 router = APIRouter()
@@ -22,7 +23,7 @@ async def signup(req: SignupRequest, response: Response):
     
     existing = db.query(User).filter(User.email == req.email).first()
     if existing:
-        return {"error": "User already exists"}
+        raise HTTPException(status_code=400, detail="Username or email already registered")
     
     hashed_password = hash_password(req.password)
 
@@ -63,10 +64,10 @@ async def login(req: LoginRequest, response: Response):
     
     user = db.query(User).filter(User.email == req.email).first()
     if not user:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=401, detail="User not found")
     
     if not verify_password(req.password, user.hashed_password):
-        return {"error": "Invalid password"}
+        raise HTTPException(status_code=401, detail="Invalid password")
     
     access_token = create_access_token(
         {"user_id": str(user.id)}
@@ -97,4 +98,15 @@ async def logout(response: Response):
     return {
         "message": "Logged out successfully"
     }
+
+@router.get("/me")
+async def get_me(
+    current_user: User = Depends(get_current_user)
+):
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email
+    }
+
 
