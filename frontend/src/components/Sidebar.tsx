@@ -9,13 +9,15 @@ interface SidebarProps {
     setSessionId: (id: string) => void
     fetchSessions: () => void
     setMessages: React.Dispatch<React.SetStateAction<any[]>>
+    onCloseMobile?: () => void
 }
 
 const Sidebar = ({
     sessions,
     setSessionId,
     fetchSessions,
-    setMessages
+    setMessages,
+    onCloseMobile
 }: SidebarProps) => {
 
     const handleNewChat = async () => {
@@ -28,6 +30,7 @@ const Sidebar = ({
             setSessionId(res.data.session_id)
             setMessages([])
             fetchSessions()
+            if (onCloseMobile) onCloseMobile()
         } catch (error) {
             console.log(error)
         }
@@ -41,13 +44,14 @@ const Sidebar = ({
             )
             setSessionId(sessionId)
             setMessages(res.data)
+            if (onCloseMobile) onCloseMobile()
         } catch (error) {
             console.log(error)
         }
     }
 
     return (
-        <div className="w-72 bg-[#F9FAFB] border-r border-gray-200 h-screen flex flex-col flex-shrink-0">
+        <div className="w-64 md:w-72 bg-[#F9FAFB] border-r border-gray-200 h-screen flex flex-col flex-shrink-0 shadow-xl md:shadow-none">
             <div className="p-4 border-b border-gray-200">
                 <button
                     onClick={handleNewChat}

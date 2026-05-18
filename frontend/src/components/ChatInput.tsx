@@ -56,7 +56,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
 
   return (
     <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto">
-      <div className="flex gap-2 mb-2 ml-2">
+      <div className="flex gap-2 mb-1 md:mb-2 ml-1 md:ml-2">
         <button
           onClick={() => setMode("chat")}
           className={`px-3 py-1 rounded-full text-sm transition-colors ${mode === "chat"
@@ -99,7 +99,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
           ))}
         </div>
       )}
-      <div className="flex gap-3 w-full items-center relative">
+      <div className="flex gap-2 md:gap-3 w-full items-center relative">
         <input
           type="file"
           multiple
@@ -111,16 +111,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading || isLoading}
-          className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+          className="absolute left-1 md:left-2 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
           title="Upload PDF"
         >
-          {isUploading ? <Loader2 size={20} className="animate-spin text-neutral-600" /> : <Plus size={20} />}
+          {isUploading ? <Loader2 size={18} className="animate-spin text-neutral-600 md:w-5 md:h-5" /> : <Plus size={18} className="md:w-5 md:h-5" />}
         </button>
 
         <input
           type="text"
           placeholder="Message AI Assistant..."
-          className="flex-1 border border-gray-300 rounded-full pl-12 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-neutral-500 shadow-sm transition-shadow"
+          className="flex-1 border border-gray-300 rounded-full pl-9 md:pl-12 pr-9 md:pr-12 py-2 md:py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-neutral-500 shadow-sm transition-shadow"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
@@ -133,13 +133,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
 
         <button
           onClick={handleAsk}
-          className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${isLoading || !message.trim()
+          className={`absolute right-1 md:right-2 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-full transition-colors ${isLoading || !message.trim()
               ? 'text-gray-400 bg-transparent cursor-not-allowed'
               : 'text-white bg-neutral-900 hover:bg-neutral-600 shadow-sm'
             }`}
           disabled={isLoading || !message.trim()}
         >
-          {isLoading ? <Square size={18} fill='black' /> : <ArrowUp size={24} />}
+          {isLoading ? <Square size={16} fill='black' className="md:w-4 md:h-4" /> : <ArrowUp size={20} className="md:w-6 md:h-6" />}
         </button>
       </div>
     </div>

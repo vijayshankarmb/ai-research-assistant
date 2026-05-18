@@ -19,6 +19,7 @@ const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const router = useRouter();
   const [sessions, setSessions] = useState<{session_id: string, title: string}[]>([])
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -202,7 +203,7 @@ const Home = () => {
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900 font-sans overflow-hidden">
       {isLoggedIn === null ? (
-        <div className="w-72 bg-[#F9FAFB] border-r border-gray-200 h-screen flex flex-col flex-shrink-0">
+        <div className="w-72 bg-[#F9FAFB] border-r border-gray-200 h-screen flex flex-col flex-shrink-0 hidden md:flex">
           <div className="p-4 border-b border-gray-200">
             <div className="h-10 bg-gray-200 animate-pulse rounded-lg w-full"></div>
           </div>
@@ -214,17 +215,41 @@ const Home = () => {
           </div>
         </div>
       ) : isLoggedIn === true ? (
-        <Sidebar
-          sessions={sessions}
-          setSessionId={setSessionId}
-          fetchSessions={fetchSessions}
-          setMessages={setMessages}
-        />
+        <>
+          {/* Mobile Overlay */}
+          {isSidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black/20 z-20 md:hidden" 
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+          {/* Sidebar container */}
+          <div className={`fixed inset-y-0 left-0 z-30 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 transition-transform duration-200 ease-in-out flex`}>
+            <Sidebar
+              sessions={sessions}
+              setSessionId={setSessionId}
+              fetchSessions={fetchSessions}
+              setMessages={setMessages}
+              onCloseMobile={() => setIsSidebarOpen(false)}
+            />
+          </div>
+        </>
       ) : null}
       <div className="flex flex-col flex-1 w-full overflow-hidden">
-        <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-between items-center z-10 shrink-0">
-        <div className="w-16"></div>
-        <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
+        <header className="bg-white border-b border-gray-200 py-3 md:py-4 px-4 md:px-6 flex justify-between items-center z-10 shrink-0">
+        <div className="flex items-center gap-3">
+          {isLoggedIn === true && (
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-1.5 text-gray-600 hover:text-black rounded-md hover:bg-gray-100"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+          )}
+          <h1 className="text-lg md:text-xl font-bold text-gray-800">AI Assistant</h1>
+        </div>
         <div className="flex gap-2">
           {isLoggedIn === null && (
             <div className="w-20 h-8 bg-gray-200 animate-pulse rounded-md"></div>
@@ -257,7 +282,7 @@ const Home = () => {
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col items-center">
-        <div className="w-full max-w-3xl flex flex-col gap-2 pb-4">
+        <div className="w-full max-w-3xl flex flex-col gap-3 md:gap-4 pb-4">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-500 mt-32">
               <div className="w-16 h-16 bg-blue-100 text-neutral-600 rounded-full flex items-center justify-center mb-4">
@@ -278,7 +303,7 @@ const Home = () => {
         </div>
       </main>
 
-      <footer className="bg-white border-t border-gray-200 p-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <footer className="bg-white border-t border-gray-200 p-3 md:p-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
         <ChatInput
           message={message}
           setMessage={setMessage}
