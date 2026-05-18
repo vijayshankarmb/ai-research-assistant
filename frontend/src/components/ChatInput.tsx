@@ -50,8 +50,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
     }
   };
 
-  const removeFile = () => {
-    setUploadedFiles([]);
+  const removeFile = (indexToRemove: number) => {
+    setUploadedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   return (
@@ -88,6 +88,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
               <span className="text-sm font-medium truncate max-w-[200px]">
                 {fileName}
               </span>
+              <button
+                onClick={() => removeFile(index)}
+                className="text-neutral-500 hover:text-neutral-800 transition-colors"
+                title="Remove file"
+              >
+                <X size={16} />
+              </button>
             </div>
           ))}
         </div>
