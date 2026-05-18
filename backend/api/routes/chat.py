@@ -94,14 +94,11 @@ async def chat(
         nonlocal full_response
 
         if req.mode == "chat":
-
             async for chunk in stream_llm(
                 req.message,
                 history
             ):
-
                 full_response += chunk
-
                 yield chunk
 
         elif req.mode == "rag":
@@ -111,11 +108,9 @@ async def chat(
                 history,
                 req.session_id
             ):
-
                 full_response += chunk
-
                 yield chunk
-
+                
         ai_message = Message(
             role="assistant",
             content=full_response,
