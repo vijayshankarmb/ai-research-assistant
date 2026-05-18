@@ -56,9 +56,35 @@ const Home = () => {
   };
 
   useEffect(() => {
-    if (isLoggedIn === true) {
-      fetchSessions();
-    }
+    const init = async () => {
+      if (isLoggedIn === true) {
+        try {
+          const response = await axios.get("http://localhost:8000/sessions", {
+            withCredentials: true
+          });
+          const data = response.data;
+          setSessions(data);
+          
+          if (data.length > 0) {
+            const latest = data[data.length - 1];
+            setSessionId(latest.session_id);
+            const msgRes = await axios.get(`http://localhost:8000/sessions/${latest.session_id}/messages`, {
+              withCredentials: true
+            });
+            setMessages(msgRes.data);
+          } else {
+             const createRes = await axios.post("http://localhost:8000/sessions", {}, { withCredentials: true });
+             setSessionId(createRes.data.session_id);
+             setMessages([]);
+             const refresh = await axios.get("http://localhost:8000/sessions", { withCredentials: true });
+             setSessions(refresh.data);
+          }
+        } catch (error) {
+          console.error("Failed to initialize session", error);
+        }
+      }
+    };
+    init();
   }, [isLoggedIn]);
 
   const scrollToBottom = () => {
