@@ -8,15 +8,17 @@ import type { ChatMessageType } from '@/types/chat'
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Sidebar from '@/components/Sidebar'
 
 const Home = () => {
   const [message, setMessage] = useState<string>('')
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [mode, setMode] = useState<"chat" | "rag">("chat")
-  const [sessionId] = useState(uuidv4());
+  const [sessionId, setSessionId] = useState<string>(uuidv4());
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const router = useRouter();
+  const [sessions, setSessions] = useState<{session_id: string, title: string}[]>([])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -41,6 +43,23 @@ const Home = () => {
       console.error('Logout failed', error);
     }
   };
+
+  const fetchSessions = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/sessions", {
+        withCredentials: true
+      });
+      setSessions(response.data);
+    } catch (error) {
+      console.error("Failed to fetch sessions", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn === true) {
+      fetchSessions();
+    }
+  }, [isLoggedIn]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -150,15 +169,40 @@ const Home = () => {
       });
     } finally {
       setIsLoading(false);
+      fetchSessions();
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 text-gray-900 font-sans overflow-hidden">
-      <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-between items-center z-10 shrink-0">
+    <div className="flex h-screen bg-gray-50 text-gray-900 font-sans overflow-hidden">
+      {isLoggedIn === null ? (
+        <div className="w-72 bg-[#F9FAFB] border-r border-gray-200 h-screen flex flex-col flex-shrink-0">
+          <div className="p-4 border-b border-gray-200">
+            <div className="h-10 bg-gray-200 animate-pulse rounded-lg w-full"></div>
+          </div>
+          <div className="flex-1 p-3 flex flex-col gap-3 mt-2">
+            <div className="h-4 bg-gray-200 animate-pulse w-24 rounded"></div>
+            <div className="h-10 bg-gray-200 animate-pulse w-full rounded-lg"></div>
+            <div className="h-10 bg-gray-200 animate-pulse w-full rounded-lg"></div>
+            <div className="h-10 bg-gray-200 animate-pulse w-full rounded-lg"></div>
+          </div>
+        </div>
+      ) : isLoggedIn === true ? (
+        <Sidebar
+          sessions={sessions}
+          setSessionId={setSessionId}
+          fetchSessions={fetchSessions}
+          setMessages={setMessages}
+        />
+      ) : null}
+      <div className="flex flex-col flex-1 w-full overflow-hidden">
+        <header className="bg-white border-b border-gray-200 py-4 px-6 flex justify-between items-center z-10 shrink-0">
         <div className="w-16"></div>
         <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
         <div className="flex gap-2">
+          {isLoggedIn === null && (
+            <div className="w-20 h-8 bg-gray-200 animate-pulse rounded-md"></div>
+          )}
           {isLoggedIn === true && (
             <button 
               onClick={handleLogout} 
@@ -222,6 +266,7 @@ const Home = () => {
           <p className="text-xs text-gray-400">AI can make mistakes. Consider verifying important information.</p>
         </div>
       </footer>
+      </div>
     </div>
   )
 }
