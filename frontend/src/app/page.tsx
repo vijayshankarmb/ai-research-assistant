@@ -26,7 +26,7 @@ const Home = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get('http://localhost:8000/me', { withCredentials: true });
+        await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/me`, { withCredentials: true });
         setIsLoggedIn(true);
       } catch (error) {
         setIsLoggedIn(false);
@@ -37,7 +37,7 @@ const Home = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:8000/logout', {}, { withCredentials: true });
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/logout`, {}, { withCredentials: true });
       setIsLoggedIn(false);
       router.push('/login');
     } catch (error) {
@@ -47,7 +47,7 @@ const Home = () => {
 
   const fetchSessions = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/sessions", {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`, {
         withCredentials: true
       });
       setSessions(response.data);
@@ -60,7 +60,7 @@ const Home = () => {
     const init = async () => {
       if (isLoggedIn === true) {
         try {
-          const response = await axios.get("http://localhost:8000/sessions", {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`, {
             withCredentials: true
           });
           const data = response.data;
@@ -69,15 +69,15 @@ const Home = () => {
           if (data.length > 0) {
             const latest = data[data.length - 1];
             setSessionId(latest.session_id);
-            const msgRes = await axios.get(`http://localhost:8000/sessions/${latest.session_id}/messages`, {
+            const msgRes = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${latest.session_id}/messages`, {
               withCredentials: true
             });
             setMessages(msgRes.data);
           } else {
-             const createRes = await axios.post("http://localhost:8000/sessions", {}, { withCredentials: true });
+             const createRes = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`, {}, { withCredentials: true });
              setSessionId(createRes.data.session_id);
              setMessages([]);
-             const refresh = await axios.get("http://localhost:8000/sessions", { withCredentials: true });
+             const refresh = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`, { withCredentials: true });
              setSessions(refresh.data);
           }
         } catch (error) {
@@ -116,7 +116,7 @@ const Home = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

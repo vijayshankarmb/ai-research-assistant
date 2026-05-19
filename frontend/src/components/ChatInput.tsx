@@ -33,7 +33,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ message, setMessage, handleAsk, i
         formData.append("session_id", sessionId);
 
         await axios.post(
-          "http://localhost:8000/upload-pdf",
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload-pdf`,
           formData
         );
         uploadedNames.push(file.name);

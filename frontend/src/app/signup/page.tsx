@@ -18,7 +18,7 @@ export default function Signup() {
     setIsLoading(true)
     setError('')
     try {
-      await axios.post('http://localhost:8000/signup', {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/signup`, {
         username,
         email,
         password

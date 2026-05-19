@@ -23,7 +23,7 @@ const Sidebar = ({
     const handleNewChat = async () => {
         try {
             const res = await axios.post(
-                'http://localhost:8000/sessions',
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`,
                 {},
                 { withCredentials: true }
             )
@@ -39,7 +39,7 @@ const Sidebar = ({
     const loadSession = async (sessionId: string) => {
         try {
             const res = await axios.get(
-                `http://localhost:8000/sessions/${sessionId}/messages`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${sessionId}/messages`,
                 { withCredentials: true }
             )
             setSessionId(sessionId)

@@ -17,7 +17,7 @@ export default function Login() {
     setIsLoading(true)
     setError('')
     try {
-      await axios.post('http://localhost:8000/login', {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, {
         email,
         password
       }, {
